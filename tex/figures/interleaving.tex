@@ -1,0 +1,10 @@
+\documentclass[tikz=true]{standalone}
+%\usepackage{tikz}
+\usetikzlibrary{cd} % tikz package already loaded by 'tikz' option
+\usepackage{amsfonts}
+\begin{document}
+\begin{tikzcd}[font=\large]
+H_k(\mathcal{X}(t)) \ar[r]\arrow{dr}[sloped, pos=0.2]{F^\alpha} &H_k(\mathcal{X}(\beta(s)))\arrow{dr}[sloped,pos=0.2]{F^\alpha} \ar[r] &H_k(\mathcal{X}(\beta\circ\alpha(t)))\\
+H_k(\mathcal{Y}(s)) \ar[r]\arrow{ur}[swap, sloped,pos=0.2]{G^\beta} &H_k(\mathcal{Y}(\alpha(t))) \ar[r]\arrow{ur}[swap, sloped, pos=0.2]{G^\beta} &H_k(\mathcal{Y}(\alpha\circ\beta(s)))
+\end{tikzcd}
+\end{document}

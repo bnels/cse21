@@ -1,0 +1,3 @@
+# Parallel Computation of Zigzag Homology using Matrix Factorizations
+
+Zigzag homology (encompassing persistent homology) is a fundamental construction in topological data analysis used to obtain features of shapes. We show how in the most general case, computing zigzag homology reduces to finding a canonical form of a matrix associated with a type-A quiver representation, which in turn can be computed using factorizations of associated matrices. This framework offers two opportunities for parallelization complementary to many existing efforts to accelerate persistent homology calculations: parallelization of the homology functor, and a divide-and-conquer scheme for computing the matrix factorization.

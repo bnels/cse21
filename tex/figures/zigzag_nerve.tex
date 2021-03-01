@@ -1,0 +1,9 @@
+\documentclass[tikz=true]{standalone}
+%\usepackage{tikz}
+\usetikzlibrary{cd} % tikz package already loaded by 'tikz' option
+\usepackage{amsfonts}
+\begin{document}
+\begin{tikzcd}[font=\large]
+H_k(\mathcal{N}(\mathcal{U})) \ar[r, leftarrow, "H_k(p_U)"] & H_k(\mathcal{N}(\mathcal{U},\mathcal{V}))\ar[r, "H_k(p_V)"] & H_k(\mathcal{N}(\mathcal{V}))
+\end{tikzcd}
+\end{document}

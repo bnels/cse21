@@ -1,0 +1,30 @@
+\documentclass[tikz=true]{standalone}
+%\usepackage{tikz}
+\usetikzlibrary{cd} % tikz package already loaded by 'tikz' option
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\begin{document}
+\begin{tikzcd}[font=\large]
+A &= &B &\Lambda &B^{-1}\\
+\begin{bmatrix}
+0 &\\
+A_0&0 &\\
+&A_1& 0
+\end{bmatrix} &=&
+\begin{bmatrix}
+B_0\\
+&B_1\\
+& & B_2
+\end{bmatrix}&
+\begin{bmatrix}
+0 &\\
+E_0&0 &\\
+&E_1& 0
+\end{bmatrix}&
+\begin{bmatrix}
+B_0^{-1} &\\
+&B_1^{-1} &\\
+& & B_2^{-1}
+\end{bmatrix}
+\end{tikzcd}
+\end{document}

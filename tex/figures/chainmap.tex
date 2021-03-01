@@ -1,0 +1,10 @@
+\documentclass[tikz=true]{standalone}
+%\usepackage{tikz}
+\usetikzlibrary{cd} % tikz package already loaded by 'tikz' option
+\usepackage{amsfonts}
+\begin{document}
+\begin{tikzcd}[font=\large]
+0 \ar[r, leftarrow, "\partial^C_0"] &C_0 \ar[r, leftarrow, "\partial^C_1"]\ar[d, "F_0"] & C_1 \ar[r, leftarrow, "\partial^C_2"]\ar[d, "F_1"] & \cdots\\
+0 \ar[r, leftarrow, "\partial^D_0"] &D_0 \ar[r, leftarrow, "\partial^D_1"] & D_1 \ar[r, leftarrow, "\partial^D_2"] & \cdots
+\end{tikzcd}
+\end{document}

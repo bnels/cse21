@@ -1,0 +1,32 @@
+/* Style the video: 100% width and height to cover the entire window */
+/* #fullVideo {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+} */
+
+.columns{
+    display: flex;
+    padding:20px; /* this */
+}
+.col{
+    flex: 1;
+}
+.multicol{
+    flex: 1;
+    flex-grow: 2;
+}
+.colsep{
+    flex: 1;
+}
+
+.scrollable {
+    text-align: left;
+    overflow-y: auto  !important;
+    overflow-x: hidden !important;
+    height: 400px;
+}
+
+.reveal section img { background:none; border:none; box-shadow:none; }

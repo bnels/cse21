@@ -1,0 +1,10 @@
+\documentclass[tikz=true]{standalone}
+%\usepackage{tikz}
+\usetikzlibrary{cd} % tikz package already loaded by 'tikz' option
+\usepackage{amsfonts}
+\begin{document}
+\begin{tikzcd}[font=\large]
+X \ar[r, "f"]\ar[d] & Y\ar[d] \ar[r, "g"]\ar[d] & Z\ar[d] \ar[r] &\dots\\
+H_k(X) \ar[r, "H_k(f)"] & H_k(Y) \ar[r, "H_k(g)"]  & H_k(Z) \ar[r]&\dots
+\end{tikzcd}
+\end{document}

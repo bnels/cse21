@@ -1,0 +1,9 @@
+\documentclass[tikz=true]{standalone}
+%\usepackage{tikz}
+\usetikzlibrary{cd} % tikz package already loaded by 'tikz' option
+\usepackage{amsfonts}
+\begin{document}
+\begin{tikzcd}[font=\large]
+H_k(X_0) \ar[r, leftrightarrow, "H_k(f_0)"] & H_k(X_1)\ar[r, leftrightarrow, "H_k(f_1)"] & H_k(X_2) \ar[r, leftrightarrow, "H_k(f_2)"] & \dots
+\end{tikzcd}
+\end{document}

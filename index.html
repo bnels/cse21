@@ -1,0 +1,409 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Parallel Zigzag</title>
+		<meta name="author" content="Brad Nelson">
+
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/reveal.css">
+		<!-- <link rel="stylesheet" href="css/theme/black.css"> -->
+		<link rel="stylesheet" href="css/theme/serif.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/monokai.css">
+
+		<!-- Custom CSS, some reveal overrides -->
+		<link rel="stylesheet" href="css/custom.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<section data-background-video="video_slides/ZigzagTitle.mp4" data-background-video-muted data-background-video-loop>
+						<h3>Parallel Computation of Zigzag Homology using Matrix Factorizations</h3>
+						<p></br></p>
+						<h4>Brad Nelson</h4>
+						<h5>Department of Statistics, CCAM</h5>
+						<h5>University of Chicago</h5>
+						<p>
+							SIAM Computational Science & Engineering<br />
+							Emerging Directions in Computational Topology<br />
+							March 1, 2021<br />
+							<a href="https://bnels.github.io/cse21">bnels.github.io/cse21</a>
+						</p>
+					</section>
+					<section>
+						<h3> Collaborators/Support</h3>
+						<div>
+							<div style="float:left;">
+								<img src="figures/people/gunnar.jpg" alt="Gunnar" border="0" height="250"><br/>
+								<small>Gunnar Carlsson</small>
+							</div>
+							<div style="float:left;">
+								<img src="figures/people/anjan.jpg" alt="Anjan" border="0" height="250"><br/>
+								<small>Anjan Dwaraknath</small>
+							</div>
+						</div>
+						<p>
+							Funding I received while working on this topic
+							<ul>
+								<li>DoD through NDSEG fellowship</li>
+								<li>DOE through SLAC/Neutrino group</li>
+								<li><a href="http://unboxai.org/">Unbox AI</a></li>
+							</ul>
+						</p>
+					</section>
+					<section>
+						<h3> Outline </h3>
+						<ol>
+							<li>Brief introduction to Topological Data Analysis (TDA)</li>
+							<li>Zigzag Homology</li>
+							<li>Sequential Algorithms</li>
+							<li>Divide and Conquer</li>
+							<li>Experiments</li>
+						</ol>
+					</section>
+				</section>
+				<section> <!-- Intro to TDA -->
+					<section>
+						<h3> Topological Data Analysis (TDA) </h3>
+						<p>
+							Concerned with understanding and using data through topology.<br />
+							Data sets as topological spaces. Data points as topological spaces.<br />
+							Compute algebraic signatures of shapes.
+						</p>
+						<p>
+							Application of homology to data begun by Robins <a href="#/6/3">[R 00]</a>,<br /> furthered by <a href="#/6/3">[ELZ 02]</a>, <a href="#/6/3">[ZC 05]</a>, <a href="#/6/3">[CdS 10], ...</a>.
+						</p>
+						<p>
+							Applications (necessarily incomplete list):<br />
+							Data visualization (mapper) <a href="#/6/3">[SMC 07]</a>, neuroscience <a href="#/6/3">[GGB 16]</a>, molecular properties <a href="#/6/3">[CWD 17]</a>, materials discovery <a href="#/6/3">[H+ 16]</a>, regularization <a href="#/6/3">[G<font color="#cc1b38"><strong>N</strong></font>D+ 20]</a>, genetics <a href="#/6/3">[CGR 13]</a>
+						</p>
+					</section>
+					<section>
+						<h3> Topological Features </h3>
+						<img src="figures/math_DL.png" alt="Image Patch" border="0">
+						<p>
+							Figure from "Potentially highly potent drugs for 2019-nCoV" Nguyen et al. <a href="#/6/3">[N+ 20]</a>
+						</p>
+					</section>
+					<section>
+						<h3> Topology of Data Sets</h3>
+						<div>
+							<div style="float:left;">
+								<img src="tex/figures/klein_bottle.png" alt="Klein Bottle" border="0" height="500"><br />
+								<small>Klein bottle in image patches <a href="#/6/3">[C+ 08]</a></small>
+							</div>
+							<div style="float:left;">
+								<img src="figures/ron_kb3.jpeg" alt="Klein Bottle" border="0" height="500"><br />
+								<small>Painting by Ron Estrin</small>
+							</div>
+						</div>
+					</section>
+					<script src="js/add_video_slide.js" slide_scene="RipsBallsDiagram"></script>
+				</section>
+				<section> <!-- Zigzag Homology -->
+					<section>
+						<h3> Zigzag Homology </h3>
+						<p>
+							Persistent homology <a href="#/6/3">[ELZ 02]</a><br />
+							<img src="tex/figures/persistence.png" alt="Persistent Homology" border="0" height="200"><br />
+							Zigzag homology <a href="#/6/3">[CdS 10]</a><br />
+							<img src="tex/figures/zigzag.png" alt="Zigzag Homology" border="0" height="200"><br />
+						</p>
+						<p>
+							Homology turns topological spaces/maps into vector spaces/linear maps<br />
+							<strong>Barcodes</strong> track how homological features appear/disappear in diagram.
+						</p>
+					</section>
+					<section>
+						<h3> Background on Zigzag Homology </h3>
+						<img src="tex/figures/zigzag_quiver.png" alt="Zigzag Quiver", border="0">
+						<ul>
+							<li>Examples of type-A quiver representations <a href="#/6/3">[G 72]</a></li>
+
+							<li>Introduced to TDA by <a href="#/6/3">[CdS 10]</a></li>
+							<li>Algorithm for special case of inclusions <a href="#/6/3">[CdSM 09]</a> implementation in Dionysus <a href="#/6/3">[M]</a></li>
+							<li>More general version in Javaplex, used by Tausz <a href="#/6/3">[T 12]</a></li>
+							<li>Divide and conquer approaches proposed <a href="#/6/3">[CdSM 09]</a>, <a href="#/6/3">[SVJ 12]</a> <a href="#/6/3">[H 17]</a> but no parallel implementations.</li>
+
+							<li>Other work on zigzag, e.g. <a href="#/6/3">[OS 15]</a> <a href="#/6/3">[O 15]</a> <a href="#/6/3">[MO 14]</a> <a href="#/6/3">[MS 19]</a></li>
+						</ul>
+					</section>
+					<section>
+						<h3> Contributions </h3>
+						<ul>
+							<li>New computational framework for computing zigzag homology</li>
+							<li>Handles arbitrary maps between spaces</li>
+							<li>Parallel implementation using OpenMP</li>
+						</ul>
+						<p>
+							<a href="https://arxiv.org/abs/1911.10693">Persistent and Zigzag Homology: A Matrix Factorization Viewpoint</a> <a href="#/6/3">[CD<font color="#cc1b38"><strong>N</strong></font> 19+]</a><br />
+							Code: <a href="https://github.com/bnels/BATS">github.com/bnels/BATS</a> and <a href="https://github.com/bnels/BATS.py">github.com/bnels/BATS.py</a><br />
+						</p>
+					</section>
+					<section>
+						<h3> Parallelization of Homology Functor </h3>
+						<img src="tex/figures/homfunctor.png" alt="Homology Functor", border="0">
+						<ul>
+							<li>Computing Homology of each space embarassingly parallel</li>
+							<li>Computing each induced map embarassingly parallel</li>
+						</ul>
+						<p>
+							Many existing TDA packages work on filtered chain complexes<br />
+							(sensible if all maps are inclusions)<br />
+							We take advantage of this parallelization.
+						</p>
+						Other advantage: compression.
+					</section>
+					<section>
+						<h3> The Companion Matrix </h3>
+						<p>Put diagram of induced maps on homology into matrix with block adjacency structure.</p>
+						<div class="columns">
+							<div class="col">
+								<img src="tex/figures/typeA_persistence.png" alt="type A persistence", border="0">
+								<img src="tex/figures/companion_matrix.png" alt="companion matrix", border="0">
+							</div>
+							<div class="col">
+								<img src="tex/figures/typeA_zigzag.png" alt="type A zigzag", border="0">
+								<img src="tex/figures/companion_matrix_zz.png" alt="companion matrix zigzag", border="0">
+							</div>
+						</div>
+						<p>Acts on $V_0 \oplus V_1 \oplus V_2$</p>
+					</section>
+					<section>
+						<h3> The Barcode Factorization </h3>
+						<img src="tex/figures/barcode_fact.png" alt="Barcode Factorization", border="0">
+						<p>
+							$E_i$ have at most 1 nonzero in each row and column<br />
+							Can read barcode off from $\Lambda$ by tracking basis vectors<br />
+							<a href="#/6/3">[CD<font color="#cc1b38"><strong>N</strong></font> 19+]</a>: the barcode form $\Lambda$ exists and uniquely determines isomorphism class (following <a href="#/6/3">[G 72]</a>)
+						</p>
+					</section>
+				</section>
+				<section> <!-- Sequential Algorithm -->
+					<section>
+						<h3>Righward-Initial Algorithm</h3>
+						Building Blocks:
+						<ul>
+							<li>Matrix factorizations $A = LE_L UP$ and $A = PU\hat{E}_L L$</li>
+							<li>Variants of LU decomposition with different loop orders/pivot strategies</li>
+							<li>$E_L$ matrices have structure so $E_L L = \tilde{L}E_L$ (shape commutation)</li>
+							<li>$\hat{E}_L$ matrices have structure so $L \hat{E}_L = \hat{E}_L \tilde{L}$ (shape commutation)</li>
+							<li>Lower/upper triangular matrices closed under multiplication, inversion.</li>
+						</ul>
+					</section>
+					<section>
+						<h3>Sequential Algorithm</h3>
+						<img src="figures/seq_alg.png" alt="Sequential" border="0" height="500"><br/>
+					</section>
+					<script src="js/add_video_slide.js" slide_scene="ZigzagForward"></script>
+					<section>
+						<h3>Leftward-Initial Algorithm</h3>
+						<ul>
+							<li>Use two new factorizations: $A = PLE_U U$ and $A = U \hat{E}_U LP$</li>
+							<li>$E_U$ matrices have structure so $U E_U = E_U \tilde{U}$ (shape commutation)</li>
+							<li>$\hat{E}_U$ matrices have structure so $\hat{E}_U U = \tilde{U}\hat{E}_U$ (shape commutation)</li>
+							<li>Start on other end of quiver, similar game</li>
+						</ul>
+					</section>
+					<script src="js/add_video_slide.js" slide_scene="ZigzagBackward"></script>
+				</section>
+				<section>
+					<section>
+						<h3> Divide-and-Conquer </h3>
+						<ul>
+							<li>We can start the leftward and rightward algorithms in parallel</li>
+							<li>At some point in the first pass, the algorithms meet on an edge</li>
+							<li>Depending on edge direction, use $A = LQU$ factorization or $A = UQL$</li>
+							<li>$Q$ is in pivot form.  Commute $L$ matrix to start, $U$ matrix to end</li>
+							<li>Can cheaply convert to leftward or rightward form by propoagating permutations</li>
+							<li>Can use this recursively in parallel</li>
+						</ul>
+					</section>
+					<script src="js/add_video_slide.js" slide_scene="ZigzagDivideConquer"></script>
+				</section>
+				<section>
+					<section>
+						<h3>Parallel Performance</h3>
+						<div>
+							<div style="float:left;">
+								<img src="figures/dq_fig1.png" alt="Divide-Conqer perf" border="0" height="500"><br/>
+								<small>
+									Parallel speedup of divide and conquer algorithm<br />
+									$d$ - vector space dimension
+								</small>
+							</div>
+							<div style="float:left;">
+								<img src="figures/zigzag_topology.png" alt="Topology perf" border="0" height="500"><br/>
+								<small>Parallel speedup of full zigzag homology.<br /> Left: large chain complex, small homological dimension.<br/ >  Right: small chain complex, large homological dimension.</small>
+							</div>
+						</div>
+					</section>
+					<section>
+						<h3>Comparison vs Dionysus</h3>
+						<img src="figures/bats_dion.png" alt="BATS/Dionysus" border="0" height="500"><br/>
+						"Topolgical bootstrapping" samples from circle.
+					</section>
+					<section>
+						<h3>Morozov Zigzag</h3>
+						<img src="figures/bats_ripser.png" alt="BATS/Ripser" border="0" height="500"><br/>
+						<p>
+							Discrete Morozov zigzag on circle using parameters from <a href="#/6/3">[OS 15]</a>. Ripser does full PH computation.
+						</p>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h3> Review and Future Directions </h3>
+						<ul>
+							<li>Matrix factorization framework for zigzag homology.</li>
+							<li>Can be applied to <strong>any</strong> maps.</li>
+							<li>Fully parallel implementation.</li>
+						</ul><br />
+						<p>Future directions:</p>
+						<ul>
+							<li>Combine with other optimizations for (persistent) homology.</li>
+							<li>Extend support for zigzag applications.</li>
+						</ul>
+						<p> Questions? </p>
+					</section>
+					<section>
+						<h3> Technical Credits </h3>
+						<ul>
+							<li>Slides made with <a href="https://github.com/hakimel/reveal.js/">reveal.js</a></li>
+							<li>Computations done with <a href="https://github.com/bnels/BATS">BATS</a> and <a href="https://github.com/bnels/BATS.py">BATS.py</a></li>
+							<li>Video animations made with <a href="https://github.com/3b1b/manim">manim</a></li>
+							<li><a href="https://github.com/bnels/manimtda">manimtda</a> (uses BATS) <a href="https://github.com/anjandn/manim_reveal">manim_reveal</a> (thanks Anjan!)</li>
+						</ul>
+					</section>
+					<section>
+						<h3> Bibliography </h3>
+						<p>
+							The contents of this talk, with complete references, can be found in:<br />
+							[CD<font color="#cc1b38"><strong>N</strong></font> 19+] Carlsson, Dwaraknath, Nelson.  Persistent and Zigzag Homology: A Matrix Factorization Viewpoint. (Sumbitted)<br />
+							<a href="https://arxiv.org/abs/1911.10693">https://arxiv.org/abs/1911.10693</a>
+						</p>
+						<p><div class="scrollable"><small>
+							[CWD 17] Cang, Wei, Dunbrack. TopologyNet: Topology based deep convolutional and multi-task neural networks for biomolecular property predictions. 2017.
+							<br />
+							[C+ 08] Carlsson, Ishkhanov, de Silva, Zomorodian. On the Local Behavior of Spaces of Natural Images. 2008.
+							<br />
+							[CD<font color="#cc1b38"><strong>N</strong></font> 19+] Carlsson, Dwaraknath, Nelson.  Persistent and Zigzag Homology: A Matrix Factorization Viewpoint. 2019.
+							<br />
+							[CdS 10] Carlsson, de Silva. Zigzag Persistence. 2010.
+							<br />
+							[CdSM 09] Carlsson, de Silva, Morozov. Zigzag Persistent Homology and Real-valued Functions. 2009.
+							<br />
+							[CGR 13] Chan, Carlsson, Rabadan. Topology of viral evolution. 2013.
+							<br />
+							[G 72] Gabriel. Unzerlegbare Darstellungen I. 1972.
+							<br />
+							[G<font color="#cc1b38"><strong>N</strong></font>D+ 20] Gabrielsson, Nelson, Dwaraknath, Skraba, Carlsson, Guibas.  A Topology Layer for Machine Learning. 2020.
+							<br />
+							[GGB 16] Two’s company, three (or more) is a simplex: Algebraic-topological tools for understanding higher-order structure in neural data. 2016.
+							<br />
+							[H 17]	Henselman. Talk at the SIAM minisymposium in Applied and Computational Topology. 2017.
+							<br />
+							[H+ 16] Hiraoka, Nakamura, Hirata, Escolar, Matsue, Nishiura. Hierarchical structures of amorphous solids characterized by persistent homology. 2016.
+							<br />
+							[ELZ 02] Edelsbrunner, Letscher, Zomorodian. Topological Persistence and Simplification. 2002.
+							<br />
+							[MO 14] Maria, Oudot. Zigzag  persistence  via  reflections  and  transpositions. 2014.
+							<br />
+							[MS 19] Maria, Schreiber.  Discrete  morse  theory  for  computing  zigzag  persistence. 2019.
+							<br />
+							[M] Morozov. Dionysus2. <a href="https://mrzv.org/software/dionysus2/">https://mrzv.org/software/dionysus2/</a>
+							<br />
+							[N+ 20] Nguyen, Gao, Chen, Wang, Wei. Potentially highly potent drugs for 2019-nCoV. 2020.
+							<br />
+							[O 15] Oudot. Persistence Theory: From Quiver Representations to Data Analysis. 2015.
+							<br />
+							[OS 15] Oudot, Sheehy. Zigzag Zoology: Rips Zigzags for Homology Inference. 2015.
+							<br />
+							[R 00] Robins. Computational Topology at Multiple Resolutions: Foundations and Applications to Fractals and Dynamics. 2000.
+							<br />
+							[SMC 07] Singh, Memoli, Carlsson. Topological Methods for the Analysis of High Dimensional Data Sets and 3D Object Recognition. 2007.
+							<br>
+							[SVJ 12] Skraba, Vejdemo-Johansson. Parallel & scalable zig-zag persistent homology. 2012.
+							<br />
+							[T 12] Tausz. Extensions and applications of persistence based algorithms in computationaltopology.  2012.
+							<br />
+							[ZC 05] Zomorodian, Carlsson. Computing Persistent Homology. 2005.
+						</small></div></p>
+					</section>
+				</section>
+			</div>
+		</div>
+
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true },
+					// MathJax
+					{ src: 'plugin/math/math.js', async: true },
+					// RevealD3
+					{ src: 'plugin/d3/reveald3.js'}
+				],
+
+				slideNumber: true,
+
+				hash: true,
+
+				viewDistance: 4,
+
+				width: '80%',
+				height: '90%',
+			});
+		</script>
+
+		<script src="js/video_slide.js"></script>
+
+		<!-- https://github.com/rofrol/reveal.js/blob/fixed_header/index.html#L411 -->
+		<style>
+			.reveal.slide .slides > section, .reveal.slide .slides > section > section {
+			  min-height: 100% !important;
+			  display: flex !important;
+			  flex-direction: column !important;
+			  justify-content: center !important;
+			  position: absolute !important;
+			  top: 0 !important;
+			  align-items: center !important;
+			}
+			section > h1, section > h2, section > h3 {
+			  position: absolute !important;
+			  top: 0 !important;
+			  margin-left: auto !important;
+			  margin-right: auto !important;
+			  left: 0 !important;
+			  right: 0 !important;
+			  text-align: center !important;
+			}
+
+			.print-pdf .reveal.slide .slides > section, .print-pdf .reveal.slide .slides > section > section {
+			  min-height: 770px !important;
+			  position: relative !important;
+			}
+		</style>
+	</body>
+</html>

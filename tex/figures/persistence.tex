@@ -1,0 +1,11 @@
+\documentclass[tikz=true]{standalone}
+%\usepackage{tikz}
+\usetikzlibrary{cd} % tikz package already loaded by 'tikz' option
+\usepackage{amsfonts}
+\newcommand{\X}{\mathcal{X}} % topological space
+\begin{document}
+\begin{tikzcd}[font=\large]
+\X_0 \ar[r, "f_0"]\ar[d] & \X_1\ar[d] \ar[r, "f_1"] & \X_2\ar[d] \ar[r, "f_2"] & \dots\\
+H_k(\X_0) \ar[r, "H_k(f_0)"] & H_k(\X_1)\ar[r, "H_k(f_1)"] & H_k(\X_2) \ar[r, "H_k(f_2)"] & \dots
+\end{tikzcd}
+\end{document}
