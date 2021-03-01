@@ -1,4 +1,4 @@
-# PhD Talk
+# CSE 21
 
 talk on Zigzag paper
 
